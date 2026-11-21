@@ -45,11 +45,35 @@ renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(deviceP
 scene.background=new THREE.Color('#87CEEB');scene.fog=new THREE.Fog('#87CEEB',65,145);scene.add(office,jewellery);jewellery.visible=false;
 const pmrem=new THREE.PMREMGenerator(renderer);scene.environment=pmrem.fromScene(new RoomEnvironment(),.04).texture;
 const hemi=new THREE.HemisphereLight('#e3efff','#77775a',2.0);scene.add(hemi);
-const sun=new THREE.DirectionalLight('#fff0d5',3.0);sun.position.set(-25,45,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-37;sun.shadow.camera.right=37;sun.shadow.camera.top=40;sun.shadow.camera.bottom=-40;sun.shadow.normalBias=.035;sun.shadow.bias=-.0001;scene.add(sun);
+const sun=new THREE.DirectionalLight('#fff0d5',3.0);sun.position.set(38,32,-65);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-37;sun.shadow.camera.right=37;sun.shadow.camera.top=40;sun.shadow.camera.bottom=-40;sun.shadow.normalBias=.035;sun.shadow.bias=-.0001;scene.add(sun);
 const fill=new THREE.DirectionalLight('#eff7ff',1.1);fill.position.set(20,15,-20);scene.add(fill);
 function progress(n,label){$('loading-bar').style.width=n+'%';$('loading-label').textContent=label;}
 function toast(s){$('toast').textContent=s;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4700);}
 function canvasTex(w,h,draw){let c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);let t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;}
+// Lightweight sky sprites: depth-tested so roofs correctly hide the sky indoors.
+const sky=new THREE.Group();sky.name='Studio sky';office.add(sky);
+const cloudTexture=canvasTex(512,256,(c)=>{
+ const puffs=[[106,151,60],[166,112,76],[244,91,83],[322,124,74],[394,153,54],[253,158,94]];
+ for(const [x,y,r] of puffs){
+  const g=c.createRadialGradient(x,y-r*.24,r*.12,x,y,r);
+  g.addColorStop(0,'rgba(255,255,255,.97)');g.addColorStop(.6,'rgba(255,255,255,.93)');
+  g.addColorStop(.83,'rgba(235,245,252,.65)');g.addColorStop(1,'rgba(235,245,252,0)');
+  c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);
+ }
+});
+const cloudMaterial=new THREE.SpriteMaterial({map:cloudTexture,transparent:true,depthWrite:false,fog:false,toneMapped:false});
+for(const [x,y,z,w,h] of [[-45,25,-65,31,14],[-8,31,-83,35,16],[65,29,-70,29,13],[-66,36,-20,36,16],[68,39,8,32,15],[-39,35,62,34,15],[18,32,77,38,16]]){
+ const cloud=new THREE.Sprite(cloudMaterial);cloud.position.set(x,y,z);cloud.scale.set(w,h,1);sky.add(cloud);
+}
+const sunTexture=canvasTex(256,256,(c)=>{
+ const g=c.createRadialGradient(128,128,0,128,128,128);
+ g.addColorStop(0,'rgba(255,253,230,1)');g.addColorStop(.23,'rgba(255,249,210,1)');
+ g.addColorStop(.26,'rgba(255,239,173,.95)');g.addColorStop(.3,'rgba(255,232,155,.35)');
+ g.addColorStop(.55,'rgba(255,233,173,.12)');g.addColorStop(1,'rgba(255,233,173,0)');
+ c.fillStyle=g;c.fillRect(0,0,256,256);
+});
+const sunDisc=new THREE.Sprite(new THREE.SpriteMaterial({map:sunTexture,transparent:true,depthWrite:false,fog:false,toneMapped:false}));
+sunDisc.name='Sun and soft halo';sunDisc.position.copy(sun.position);sunDisc.scale.set(19,19,1);sky.add(sunDisc);
 let seed=48309;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
 const wood=canvasTex(512,512,(c,w,h)=>{c.fillStyle='#6a503b';c.fillRect(0,0,w,h);for(let i=0;i<1400;i++){let x=rnd()*w;c.strokeStyle=`rgba(${rnd()>.5?'211,173,117':'27,17,11'},${rnd()*.12})`;c.lineWidth=rnd()*2+.3;c.beginPath();c.moveTo(x,0);c.bezierCurveTo(x+10,160,x-12,350,x+5,h);c.stroke();}for(let x=0;x<512;x+=64){c.fillStyle='#30291e55';c.fillRect(x,0,2,512);}});wood.wrapS=wood.wrapT=THREE.RepeatWrapping;wood.repeat.set(2,1);
 const stone=canvasTex(1024,1024,(c,w,h)=>{c.fillStyle='#faf9f5';c.fillRect(0,0,w,h);for(let i=0;i<18;i++){let x=rnd()*w,y=rnd()*h;c.beginPath();c.moveTo(x,y);c.bezierCurveTo(x+170,y+60,x-40,y+330,x+300,y+480);c.strokeStyle=i%4===0?'rgba(176,151,105,.18)':'rgba(127,134,133,.17)';c.lineWidth=.5+rnd()*2.5;c.stroke();}c.strokeStyle='#c8c8c2';c.lineWidth=3;c.strokeRect(1.5,1.5,w-3,h-3);});stone.wrapS=stone.wrapT=THREE.RepeatWrapping;stone.repeat.set(1,1);
