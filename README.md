@@ -2,6 +2,11 @@
 
 Export of the current Sivan Films source, organised with separate frontend and backend folders.
 
+## Live website
+
+- Website: https://sivan-films.onrender.com
+- Admin: https://sivan-films.onrender.com/admin
+
 ## Requirements
 Node.js 24 LTS or later and npm. The backend uses Node's built-in SQLite module. SQLite may display an experimental warning depending on your Node version.
 
