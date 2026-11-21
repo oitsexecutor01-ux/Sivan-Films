@@ -1,0 +1,1 @@
+import Studio from '../pages/Studio';import Admin from '../pages/Admin';import Login from '../pages/Login';import {useAuth} from '../context/AuthContext';export default function AppRoutes(){const{user,loading}=useAuth();if(location.pathname.startsWith('/admin')){if(loading)return <p>Loading...</p>;return user?<Admin email={user.email}/>:<Login/>;}return <Studio/>;}

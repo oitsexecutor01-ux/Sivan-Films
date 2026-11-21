@@ -1,0 +1,3 @@
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+export const studioSettings = sqliteTable('studio_settings', {id:text('id').primaryKey(),draft:text('draft').notNull(),published:text('published').notNull(),version:integer('version').notNull().default(0),updatedAt:text('updated_at').notNull(),updatedBy:text('updated_by').notNull(),publishedAt:text('published_at')});
+export const studioHistory = sqliteTable('studio_history',{id:text('id').primaryKey(),action:text('action').notNull(),snapshot:text('snapshot').notNull(),createdAt:text('created_at').notNull(),createdBy:text('created_by').notNull()});

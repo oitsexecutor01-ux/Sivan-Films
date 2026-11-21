@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "roomCount": 5,
+  "officeMeshes": 1419,
+  "skinnedMeshes": 13,
+  "bones": 440,
+  "characters": 8,
+  "mascots": 0,
+  "sculptureLetters": 9,
+  "characterPose": {
+    "leftArm": [
+      -13.219,
+      1.457,
+      24.084
+    ],
+    "leftForearm": [
+      -13.273,
+      1.232,
+      24.161
+    ],
+    "rightArm": [
+      -12.824,
+      1.452,
+      23.921
+    ],
+    "rightForearm": [
+      -12.698,
+      1.268,
+      24.02
+    ]
+  },
+  "checks": [
+    "All six chairs face their tables",
+    "Parallel wall displays do not overlap",
+    "Music play/mute controls and no speech",
+    "Scene initialisation",
+    "All five room spawns",
+    "All five open doorways",
+    "Sixth room removed and closed",
+    "Wall and furniture collisions",
+    "Eight production/reception characters; no sculptor or media mascots",
+    "Recovered jewellery GLB load",
+    "Jewellery entry and return",
+    "Gold, Silver and Diamond doorway traversal; walls and cases remain solid"
+  ],
+  "limits": [
+    "No WebGL rendering in this check",
+    "No physical mobile testing",
+    "No physical audio listening test"
+  ]
+}

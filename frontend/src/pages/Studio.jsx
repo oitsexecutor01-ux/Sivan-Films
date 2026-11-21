@@ -1,0 +1,2 @@
+import {useEffect} from 'react';import markup from '../assets/studio-markup.html?raw';
+export default function Studio(){useEffect(()=>{const script=document.createElement('script');script.type='module';script.src='/app.js?v=upright-guide-2';document.body.appendChild(script);return()=>{script.remove();};},[]);return <div dangerouslySetInnerHTML={{__html:markup}}/>;}

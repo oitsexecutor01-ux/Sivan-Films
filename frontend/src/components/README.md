@@ -1,0 +1,1 @@
+The existing studio scene UI remains in assets/studio-markup.html and public/app.js. React page components are in pages/.

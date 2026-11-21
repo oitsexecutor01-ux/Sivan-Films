@@ -1,0 +1,47 @@
+
+  <a class="skip" href="#service-content">Skip to services</a>
+  <main id="world" aria-label="Interactive Sivan Films studio. Use arrow keys or WASD to walk. Drag the scene to look around."></main>
+  <div id="reception-greeting" role="status" aria-live="polite" hidden><span>Welcome to Sivan Films</span><button id="reception-greeting-close" type="button" aria-label="Close welcome message">×</button></div>
+  <div id="shade"></div><div id="transition"></div>
+  <header>
+    <a class="wordmark" href="#" id="home" aria-label="Sivan Films, return outside"><img src="./assets/sivan-films-logo.jpg" alt="Sivan Films"></a>
+    <div class="header-caption">THE LIVING STUDIO <span>EST. 2003 · SOUTH INDIA</span></div>
+    <nav aria-label="Main navigation"><button id="services-btn">Our services</button><button id="directory-btn">Explore rooms <span>↗</span></button><button class="project" id="project-btn">Start a project <span>↗</span></button></nav>
+  </header>
+  <div id="loader" role="status"><div class="loading-mark"><img src="./assets/sivan-films-logo.jpg" alt="Sivan Films"><span>THE LIVING STUDIO</span></div><div class="track"><i id="loading-bar"></i></div><p id="loading-label">Building your perspective…</p></div>
+  <section id="welcome" aria-labelledby="welcome-title" hidden>
+    <div class="eyebrow"><span class="live-dot"></span> A CREATIVE COMPANY. AN OPEN DOOR.</div>
+    <h1 id="welcome-title">Every great story<br>starts <em>somewhere.</em></h1>
+    <p>Step inside ours. An interactive journey through<br class="desktop"> advertising, imagination and immersive experiences.</p>
+    <div class="welcome-actions"><button id="enter-sound" class="primary">Enter with music <span>↗</span></button><button id="enter-silent" class="text-btn">Explore without sound</button></div>
+    <div class="welcome-meta">CHENNAI <span>·</span> SALEM <span>·</span> BENGALURU</div>
+  </section>
+  <aside class="location" id="location" hidden><div class="eyebrow" id="location-num">00 / THE EXTERIOR</div><h2 id="location-title">The story starts here.</h2><p id="location-copy">A garden. A camera. A new perspective.</p><button id="room-details" class="underlink">Discover this space <span>↗</span></button></aside>
+  <div class="scene-top" id="scene-top" hidden><span id="scene-status"><i></i> LIVE STUDIO</span><button id="help-btn" aria-label="Navigation help">?</button></div>
+  <div id="interaction-hint" hidden>Explore <span>↗</span></div>
+  <div id="subtitle" aria-live="polite" hidden></div>
+  <div id="toast" role="status" hidden></div>
+  <div class="bottom-bar" id="bottom-bar" hidden>
+    <button id="reception-btn" title="Return to reception"><span>⌂</span><span class="wide">Reception</span></button><span class="divider"></span>
+    <button id="rooms-bottom">Room directory <span>⌃</span></button><span class="divider"></span>
+    <button id="audio-btn" aria-label="Play background music" aria-pressed="false">Play music</button>
+    <button id="fullscreen-btn" aria-label="Toggle fullscreen">⛶</button>
+  </div>
+  <div class="move-hint" id="move-hint" hidden><span class="keys">W A S D</span> to walk <span>·</span> drag to look <span>·</span> click a floor marker</div>
+  <div class="mini-map" id="mini-map" hidden><div class="map-head">STUDIO MAP <button id="map-toggle" aria-label="Collapse map">−</button></div><svg id="map-svg" viewBox="0 0 160 208" aria-label="Clickable floor map"></svg><div id="map-note">YOU ARE HERE <i></i></div></div>
+  <div id="touch-controls" hidden><div id="joystick" aria-label="Drag to move" role="group"><div id="joystick-knob"></div></div><span>MOVE</span><span class="touch-look">DRAG RIGHT SIDE TO LOOK</span></div>
+  <button id="jewellery-back" class="primary" hidden>← Back to Metaverse</button>
+  <dialog id="panel"><div class="panel-head"><span id="panel-kicker">SIVAN FILMS</span><button id="close-panel" aria-label="Close panel">×</button></div><div id="service-content" tabindex="-1"></div></dialog>
+  <footer class="credit" id="credit">Powered by <a href="https://www.oits.company" target="_blank" rel="noopener">OITS</a></footer>
+  
+<audio id="background-music" src="./assets/studio-ambience.wav" loop preload="none"></audio>
+
+  <button id="guide-open" class="guide-open" hidden>Studio guide</button>
+  <aside id="studio-guide" aria-label="Studio guide book" hidden>
+    <div class="guide-heading"><div><small>SIVAN FILMS</small><h2>Studio guide</h2></div><button id="guide-close" aria-label="Close studio guide">×</button></div>
+    <p class="guide-caption">Pick a room. Take a peek. Collect your visit stamps.</p>
+    <div class="guide-pages"><section class="guide-map-page" aria-label="Map and passport"><div class="guide-passport"><span>YOUR STUDIO PASSPORT</span><p id="guide-progress" aria-live="polite"></p><progress id="guide-progress-bar" value="0" max="6" aria-label="Rooms explored"></progress></div>
+    <div id="guide-map" aria-label="Studio floor map"></div>
+    <p id="guide-location" class="guide-location"><i aria-hidden="true"></i><span id="guide-location-label">You are here · Reception</span></p>
+    <p class="guide-map-note">Select a room for a preview. Stamps appear when you enter a room and stay saved on this browser.</p></section><div id="guide-details" aria-live="polite"></div></div>
+  </aside>
