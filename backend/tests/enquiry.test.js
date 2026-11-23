@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {answerEnquiry} from '../src/services/enquiry.js';
+const content={contact:{phone:'1234567890',email:'studio@example.com',locations:'Chennai',director:'Ramesh'},rooms:[{id:'ad',name:'AD Film Room',intro:'Brand film production.',services:['Script development','Editing']},{id:'meta',name:'Metaverse Room',intro:'Virtual experiences.',services:['360° tours','VR training']},{id:'about',name:'About',intro:'Established in 2003.'}],industries:['Retail'],additional:[]};
+test('answers use the supplied published services',()=>{const answer=answerEnquiry(content,'ad film services enna?');assert.match(answer.answer,/Script development/);assert.equal(answer.source,'AD Film Room');});
+test('VR matches VR rather than unrelated text',()=>assert.equal(answerEnquiry(content,'VR experience iruka?').source,'Metaverse Room'));
+test('unknown questions do not invent answers',()=>assert.match(answerEnquiry(content,'What is the weather on Mars?').answer,/don’t have a confirmed answer/));
+test('prices do not invent a quote',()=>{assert.match(answerEnquiry(content,'ad film cost evlo?').answer,/confirmed price is not available/);});
+test('contact details follow updated published content',()=>assert.match(answerEnquiry({...content,contact:{phone:'9999999999'}},'phone number?').answer,/9999999999/));
+test('invalid and oversized questions rejected',()=>{for(const q of [null,'','x'.repeat(1001)])assert.throws(()=>answerEnquiry(content,q));});

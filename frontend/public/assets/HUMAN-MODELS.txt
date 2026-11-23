@@ -1,0 +1,16 @@
+Studio human models
+
+Source: https://github.com/hmthanh/3d-human-model
+Revision: ed0306f385f52f65b8c9a59f6dec86cdf17d159d
+Author: Hoang Minh Thanh (hmthanh)
+
+thanh-human.glb: repository root Thanh.glb
+tham-human.glb: repository root TranThiNgocTham.glb
+Downloaded 2026-11-23. Model files are unmodified.
+Custom runtime poses and props: ../studio-human.js
+
+The source package.json declares MIT for the project. No standalone LICENSE
+or model-specific license was present in the source tree at this revision.
+The models contain Wolf3D-named meshes; separate asset rights are not established
+by the package metadata. Confirm model redistribution/commercial permissions
+with the asset owner before publishing these assets commercially.

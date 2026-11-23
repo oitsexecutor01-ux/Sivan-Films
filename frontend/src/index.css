@@ -1,1 +1,10 @@
 html,body,#root{margin:0;min-height:100%} .login{max-width:440px;margin:12vh auto;padding:28px;font:16px Arial}.login input{display:block;width:95%;padding:12px;margin:14px 0}.login button{padding:12px 24px}
+body:has(.login){background:#f4f1e8;color:#20362e;overflow:auto}
+.login{display:block;width:calc(100% - 32px);max-width:440px;margin:10vh auto;padding:32px;background:#fff;border:1px solid #ded8c9;border-radius:16px;box-shadow:0 12px 40px #18363016;color:#20362e}
+.login h1{font:700 28px/1.25 'Manrope',Arial,sans-serif;letter-spacing:-.5px;margin:0 0 28px;color:#20362e}
+.login form{display:flex;flex-direction:column;gap:18px}
+.login label{display:block;font-size:14px;font-weight:600;color:#20362e}
+.login input{display:block;width:100%;margin:8px 0 0;padding:13px;border:1px solid #cbd3ca;border-radius:7px;background:#fafbf8;color:#172118;font:16px Arial}
+.login button{width:100%;padding:13px 20px;background:#183630;color:#fff;border-radius:7px;font-weight:600}
+.login [role=alert]{margin:0;color:#a12424;font-size:14px}
+body:has(.admin-shell){overflow:auto;background:#f6f5f0}

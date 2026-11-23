@@ -68,22 +68,6 @@ export function createCameraman(role='camera'){
  }else if(!isCamera){
   block(equipment,[.21,1.43,.25],[.055,.12,.035]);limb([.21,1.49,.25],[.21,1.57,.25],.004,.004,equipment);
  }
- // Headband wraps behind the neck; the two padded cups rest on the chest.
- const bandPath=new THREE.CatmullRomCurve3([
-  new THREE.Vector3(-.145,1.315,.205),new THREE.Vector3(-.165,1.37,.10),
-  new THREE.Vector3(-.12,1.415,.005),new THREE.Vector3(0,1.425,-.025),
-  new THREE.Vector3(.12,1.415,.005),new THREE.Vector3(.165,1.37,.10),
-  new THREE.Vector3(.145,1.315,.205)
- ]);
- const band=new THREE.Mesh(new THREE.TubeGeometry(bandPath,32,.016,8,false),equipment);group.add(band);
- for(const side of [-1,1]){
-  // Short yokes connect each cup to the band instead of floating by the collar.
-  limb([side*.145,1.33,.19],[side*.145,1.29,.215],.009,.009,metal);
-  oval(equipment,[side*.145,1.285,.22],[.047,.064,.032]);
-  oval(shoe,[side*.145,1.285,.197],[.039,.053,.018]);
-  oval(metal,[side*.145,1.285,.249],[.029,.042,.006]);
-  oval(equipment,[side*.145,1.285,.254],[.023,.035,.005]);
- }
  // Compact radio and cable on the belt.
  block(equipment,[.23,.91,-.025],[.068,.11,.05]);limb([.23,.96,-.025],[.23,1.065,-.025],.005,.005,equipment);
  group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
