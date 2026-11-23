@@ -9,6 +9,12 @@ import {createStudioHuman,humanBone,seatStudioHuman,createHumanMotion,updateHuma
 import {createStudioVR} from './vr.js';
 import {rooms,additional,industries,brandStations,contact,mediaConfig,phoneDigits} from './content.js';
 
+const officeLocations=[
+ {city:'Chennai',area:'KK Nagar',phone:'+91 9884004788',tel:'+919884004788'},
+ {city:'Bengaluru',area:'Electronic City',phone:'+91 80950 54455',tel:'+918095054455'},
+ {city:'Salem',area:'Fairlands',phone:'+91 9884100313',tel:'+919884100313'}
+];
+
 function boot(){
 const $=id=>document.getElementById(id), TAU=Math.PI*2;
 const mobile=matchMedia('(pointer:coarse)').matches;
@@ -404,7 +410,37 @@ function buildRoomCeiling(room){
  const ambient=new THREE.PointLight('#fff0da',16,18,2);ambient.position.set(cx,3.55,cz);office.add(ambient);
  for(const dx of [-5.5,5.5]){const cove=new THREE.PointLight('#ffdb9e',5,9,2);cove.position.set(cx+dx,3.98,cz);office.add(cove);}
 }
+function filmShowreel(x,label,startIndex){
+ const w=4.05,h=w*9/16,y=2.35,z=-6.35;
+ box(w+.14,h+.14,.08,M.charcoal,x,y,z-.06,office,true);
+ const playlist=[...new Set([...mediaConfig.gardenVideos,...mediaConfig.metaverseVideos,
+  ...[1,2,3].map(i=>`./assets/garden-showreel/video-${i}.mp4`),
+  ...[1,2,3].map(i=>`./assets/billboard/video-${i}.mp4`)])];
+ const video=document.createElement('video');
+ video.muted=true;video.defaultMuted=true;video.playsInline=true;video.preload='auto';
+ video.setAttribute('playsinline','');video.crossOrigin='anonymous';video.hidden=true;
+ video.dataset.filmScreen=label;document.body.appendChild(video);
+ let index=startIndex%playlist.length,failures=0;
+ const play=()=>{video.src=playlist[index];video.play().catch(()=>{});};
+ const next=()=>{index=(index+1)%playlist.length;play();};
+ video.addEventListener('ended',next);
+ video.addEventListener('playing',()=>{failures=0;});
+ video.addEventListener('error',()=>{
+  if(++failures<playlist.length)next();
+  else if(!issues.includes(label+' showreel failed to load'))issues.push(label+' showreel failed to load');
+ });
+ const texture=new THREE.VideoTexture(video);texture.colorSpace=THREE.SRGBColorSpace;
+ const screen=mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:texture,toneMapped:false}),x,y,z);
+ screen.userData.label=label+' AD Film showreel';
+ video.addEventListener('loadedmetadata',()=>{
+  const aspect=video.videoWidth/video.videoHeight,target=w/h;
+  screen.scale.set(Math.min(1,aspect/target),Math.min(1,target/aspect),1);
+ });
+ document.addEventListener('pointerdown',()=>{if(video.paused&&!video.ended&&failures<playlist.length)video.play().catch(()=>{});});
+ play();
+}
 function buildFilm(){let r=rooms[0];buildFilmWallpaper();box(9,.10,6,M.charcoal,-12,.13,-3);box(9,3.3,.18,M.cream,-12,1.8,-6.5,office,true);collider(-12,-6.5,9,.18,'cyclorama');
+ filmShowreel(-14.2,'Left',0);filmShowreel(-9.8,'Right',3);
  cyl(.65,.7,1,M.cream,-12,.65,-3.5);shootProduct(-12,1.15,-3.5);collider(-12,-3.5,1.4,1.4,'film plinth');
  cameraRig(-12,1.0);softbox(-16,-2,2.8,.6);softbox(-8,-2,2.6,-.6);table(-17,3.5,3,1);laptop(-17,3.5);chairAtTable(-17,4.5,-17,3.5);sign('From concept\nto final cut.','ADVERTISING FILMS · TVCs · BRAND STORIES',-19.78,2.5,-1,4.6,2.5,Math.PI/2,()=>showRoom(r));
  sign('Your next campaign\nstarts with a conversation.','EXPLORE PRODUCTION SERVICES ↗',-5.6,1.9,-6.8,3.7,2.3,0,()=>showRoom(r));}
@@ -660,8 +696,7 @@ function buildContact(){
  for(const [i,title,subtitle,action] of [[0,'Call',contact.phone,()=>{location.href='tel:'+contact.phone;}],[1,'WhatsApp','Start a conversation',()=>contactWhatsApp()],[2,'Email',contact.email,()=>{location.href='mailto:'+contact.email;}]])card(title,subtitle,3.2,2.4-i*.72,-33,3.3,.59,Math.PI/2,action);
  card('Your next project','TELL US WHAT YOU HAVE IN MIND',19.77,2.65,-29,3.6,1.3,-Math.PI/2);
  card('Let’s talk','OPEN PROJECT FORM',19.75,1.55,-29,3.6,.64,-Math.PI/2);
- card('Visit our studio',contact.locations,16.1,2.35,-36.08,3.4,1.1);
- card('Plan your visit','CALL FOR DIRECTIONS & TIMINGS',16.1,1.35,-36.08,3.4,.64);
+ officeLocations.forEach((location,i)=>card(`${location.city} (${location.area})`,location.phone,16.1,3.1-i*.8,-36.08,4.2,.66,0,showContacts));
  plant(5,-35,1.1);plant(18,-24,1.1);hotspot(15,-27,'Let’s Talk · project enquiry',contactLounge).position.y=.15;
 }
 
@@ -746,9 +781,15 @@ function createEnquiryHost(){
  if(hips){const point=new THREE.Vector3();hips.getWorldPosition(point);data.actor.position.y+=.95-point.y;}
 }
 
+function locationCards(){
+ return `<div class="office-locations">${officeLocations.map(location=>`<article class="office-location"><h3>${esc(location.city)} <span>(${esc(location.area)})</span></h3><a href="tel:${location.tel}" aria-label="Call ${esc(location.city)} office at ${esc(location.phone)}">${esc(location.phone)} <span aria-hidden="true">↗</span></a></article>`).join('')}</div>`;
+}
+function showContacts(){
+ panel('CONTACT / SIVAN FILMS',`<div class="contact-lounge"><p class="intro-line">LET’S START A CONVERSATION</p><h2>Contact us</h2><p>Connect with our team at any of our three locations.</p>${locationCards()}</div>`);
+}
 function contactLounge(){
  if(!entered||detectRoom()!=='contact')return;
- panel('06 / CONTACT US',`<div class="contact-lounge"><p class="intro-line">SIVAN FILMS · LET’S TALK</p><h2>Let’s create your<br>next big story.</h2><p>Pull up a chair. Tell us what you have in mind.</p><button type="button" class="panel-action" id="lounge-sit">Start seated enquiry ↗</button><div class="contact-grid"><a class="contact-primary" href="https://wa.me/${phoneDigits}" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a><a href="tel:${esc(contact.phone)}">Call ${esc(contact.phone)}</a><a href="mailto:${esc(contact.email)}">Email ${esc(contact.email)}</a></div><h3>Tell us about your project</h3><form id="lounge-form"><label class="field">Your name<input name="name" autocomplete="name" required maxlength="100" placeholder="Your name"></label><label class="field">Company / organisation<input name="company" autocomplete="organization" maxlength="140" placeholder="Company name (optional)"></label><label class="field">Phone or email<input name="reply" autocomplete="email" required maxlength="160" placeholder="How can we reach you?"></label><label class="field">Service<select name="service">${['General enquiry',...rooms.filter(r=>!['about','contact'].includes(r.id)&&!r.reserved).map(r=>r.name),...additional.map(s=>s.title)].map(name=>`<option>${esc(name)}</option>`).join('')}</select></label><label class="field">Tell us about your project<textarea name="details" required maxlength="2000" rows="4" placeholder="Your idea, timeline and what you would like to create"></textarea></label><button class="panel-action" type="submit">Submit enquiry</button><p class="contact-note">Your enquiry will be sent to the Sivan Films team. You can also close this form using ×.</p><p id="lounge-result" role="status" aria-live="polite"></p></form><section class="lounge-visit"><h3>Visit our studio</h3><p>${esc(contact.locations)}</p><p>${contact.address?esc(contact.address):'Contact us to confirm the studio address and arrange your visit.'}<br>${contact.hours?esc(contact.hours):'Please call for visiting hours.'}</p><a href="${esc(contactMapURL())}" target="_blank" rel="noopener noreferrer">${contact.address?'Open in Google Maps':'Find Sivan Films on Google Maps'}</a></section></div>`);
+ panel('06 / CONTACT US',`<div class="contact-lounge"><p class="intro-line">SIVAN FILMS · LET’S TALK</p><h2>Let’s create your<br>next big story.</h2><p>Pull up a chair. Tell us what you have in mind.</p>${locationCards()}<button type="button" class="panel-action" id="lounge-sit">Start seated enquiry ↗</button><div class="contact-grid"><a class="contact-primary" href="https://wa.me/${phoneDigits}" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a><a href="tel:${esc(contact.phone)}">Call ${esc(contact.phone)}</a><a href="mailto:${esc(contact.email)}">Email ${esc(contact.email)}</a></div><h3>Tell us about your project</h3><form id="lounge-form"><label class="field">Your name<input name="name" autocomplete="name" required maxlength="100" placeholder="Your name"></label><label class="field">Company / organisation<input name="company" autocomplete="organization" maxlength="140" placeholder="Company name (optional)"></label><label class="field">Phone or email<input name="reply" autocomplete="email" required maxlength="160" placeholder="How can we reach you?"></label><label class="field">Service<select name="service">${['General enquiry',...rooms.filter(r=>!['about','contact'].includes(r.id)&&!r.reserved).map(r=>r.name),...additional.map(s=>s.title)].map(name=>`<option>${esc(name)}</option>`).join('')}</select></label><label class="field">Tell us about your project<textarea name="details" required maxlength="2000" rows="4" placeholder="Your idea, timeline and what you would like to create"></textarea></label><button class="panel-action" type="submit">Submit enquiry</button><p class="contact-note">Your enquiry will be sent to the Sivan Films team. You can also close this form using ×.</p><p id="lounge-result" role="status" aria-live="polite"></p></form><section class="lounge-visit"><h3>Visit our studio</h3><p>${esc(contact.locations)}</p><p>${contact.address?esc(contact.address):'Contact us to confirm the studio address and arrange your visit.'}<br>${contact.hours?esc(contact.hours):'Please call for visiting hours.'}</p><a href="${esc(contactMapURL())}" target="_blank" rel="noopener noreferrer">${contact.address?'Open in Google Maps':'Find Sivan Films on Google Maps'}</a></section></div>`);
  $('lounge-sit').onclick=startSeatedEnquiry;
  $('lounge-form').onsubmit=async e=>{
   e.preventDefault();const form=e.currentTarget,button=form.querySelector('[type="submit"]'),result=form.querySelector('#lounge-result');
@@ -805,7 +846,6 @@ function buildCorridorGallery(){
    else {c.font='bold 125px Georgia';c.textAlign='center';c.fillText('i',128,170);}
   });
   const badge=mesh(new THREE.PlaneGeometry(.48,.48),new THREE.MeshBasicMaterial({map:icon}),side*2.75,1.6,r.z-1.98);badge.rotation.y=rotation;badge.userData={label:r.name,action:()=>showRoom(r)};interactive.push(badge);
-  const arrow=sign((side<0?'← ':'→ ')+r.n+'  '+r.name,'',side*1.35,.107,r.z+1.5,1.9,.42,0,()=>goRoom(r));arrow.rotation.x=-Math.PI/2;
  }
  for(const side of[-1,1]){
   box(.10,.035,41.8,teal,side*2.62,4.19,-15.1);
@@ -1106,7 +1146,7 @@ async function loadJewellery(){roomWalk=null;if(jewelleryLoading){toast('The sho
  $('transition').classList.add('active');setTimeout(()=>{mode='jewellery';office.visible=false;jewellery.visible=true;position.set(0,1.67,5.7);yaw=0;pitch=0;$('jewellery-back').hidden=false;$('mini-map').hidden=true;scene.background.set('#cfdae0');scene.fog=new THREE.Fog('#cfdae0',65,130);updateLocation();$('transition').classList.remove('active');toast('Sivan Jewellery · walk forward to explore. Return using the top-right button.');},170);}
 
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function panel(kicker,html){$('panel').classList.toggle('contact-popup',kicker==='06 / CONTACT US');keys.clear();touchMove.x=touchMove.y=0;$('panel-kicker').textContent=kicker;$('service-content').innerHTML=html;if(!$('panel').open)$('panel').showModal();$('service-content').focus();}
+function panel(kicker,html){$('panel').classList.toggle('contact-popup',kicker==='06 / CONTACT US'||kicker==='CONTACT / SIVAN FILMS');keys.clear();touchMove.x=touchMove.y=0;$('panel-kicker').textContent=kicker;$('service-content').innerHTML=html;if(!$('panel').open)$('panel').showModal();$('service-content').focus();}
 const list=items=>'<ul class="service-list">'+items.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>';
 function enquire(service='General enquiry'){panel('LET’S CREATE SOMETHING',`<p class="intro-line">SIVAN FILMS · SOUTH INDIA</p><h2>Your next story<br>starts here.</h2><p>Tell us a little about your project. Continue to WhatsApp to send your enquiry directly to Sivan Films.</p><form id="enquiry-form"><label class="field">Your name<input name="name" required maxlength="100" autocomplete="name" placeholder="Your name"></label><label class="field">Company / organisation<input name="company" maxlength="140" autocomplete="organization" placeholder="Company name"></label><label class="field">Required service<select name="service">${['General enquiry',...rooms.filter(r=>!r.reserved&&r.id!=='about'&&r.id!=='contact').map(r=>r.name),...additional.map(s=>s.title)].map(s=>`<option ${s===service?'selected':''}>${esc(s)}</option>`).join('')}</select></label><label class="field">City / location<input name="city" maxlength="100" placeholder="Where is your project?"></label><label class="field">Project requirements<textarea name="details" required maxlength="2000" rows="4" placeholder="What would you like to create? Include your preferred timeline."></textarea></label><button class="panel-action" type="submit">Continue to WhatsApp <span>↗</span></button></form><div class="contact-grid"><a href="tel:${esc(contact.phone)}">Call ${esc(contact.phone)} ↗</a><a href="mailto:${esc(contact.email)}">${esc(contact.email)} ↗</a></div><p>${esc(contact.locations)}<br>Project quotations depend on scope and production requirements.</p>`);$('enquiry-form').onsubmit=e=>{e.preventDefault();let d=new FormData(e.currentTarget),text=`Hello Sivan Films!\nName: ${d.get('name')}\nCompany: ${d.get('company')}\nService: ${d.get('service')}\nLocation: ${d.get('city')}\nRequirement: ${d.get('details')}`;window.open('https://wa.me/'+phoneDigits+'?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');};}
 function showRoom(r){if(r.id==='contact'){contactLounge();return;}panel('EXPLORE / '+r.n,`<p class="intro-line">${esc(r.kicker)}</p><h2>${esc(r.name)}</h2><p>${esc(r.intro)}</p>${r.reserved?'<p class="notice">Reserved room · theme and content pending confirmation.</p>':list(r.services)}${r.id==='media'?channelGallery():''}${r.id==='meta'?'<button class="panel-action" id="open-jewel-panel">Explore virtual Sivan Jewellery <span>↗</span></button>':''}<button class="panel-action" id="share-room">Copy direct room link <span>↗</span></button><button class="panel-action" id="walk-room">Walk into this room <span>↗</span></button>${r.id==='about'?'<button class="panel-action" id="read-about">Read about Sivan Films <span>↗</span></button>':''}${!r.reserved?'<button class="panel-action" id="enquire-room">Discuss a project <span>↗</span></button>':''}`);$('share-room').onclick=()=>copyRoomLink(r.id);$('walk-room').onclick=()=>goRoom(r.id);if($('read-about'))$('read-about').onclick=about;if($('enquire-room'))$('enquire-room').onclick=()=>enquire(r.name);if($('open-jewel-panel'))$('open-jewel-panel').onclick=loadJewellery;}
@@ -1131,7 +1171,7 @@ window.addEventListener('keydown',e=>{if($('panel').open||!entered||enquirySessi
 let drag=null,dragDistance=0;renderer.domElement.addEventListener('pointerdown',e=>{if(enquirySession)return;roomWalk=null;drag={id:e.pointerId,x:e.clientX,y:e.clientY};pointer.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);dragDistance=0;renderer.domElement.setPointerCapture(e.pointerId);});renderer.domElement.addEventListener('pointermove',e=>{let rect=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);if(drag&&drag.id===e.pointerId){let dx=e.clientX-drag.x,dy=e.clientY-drag.y;dragDistance+=Math.abs(dx)+Math.abs(dy);yaw-=dx*.0035;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-.8,.8);drag.x=e.clientX;drag.y=e.clientY;}});renderer.domElement.addEventListener('pointerup',e=>{if(enquirySession)return;if(dragDistance<9&&entered&&mode==='office'){ray.setFromCamera(pointer,camera);let hit=ray.intersectObjects(interactive,false).find(h=>h.distance<30);if(hit)hit.object.userData.action?.();}drag=null;});renderer.domElement.addEventListener('pointercancel',()=>drag=null);
 let joy=$('joystick');function joyUpdate(e){let r=joy.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,len=Math.hypot(dx,dy),scale=Math.min(1,28/(len||1));dx*=scale;dy*=scale;touchMove.x=dx/28;touchMove.y=-dy/28;$('joystick-knob').style.transform=`translate(${dx}px,${dy}px)`;}
 joy.addEventListener('pointerdown',e=>{joy.setPointerCapture(e.pointerId);joyUpdate(e);});joy.addEventListener('pointermove',e=>{if(e.buttons)joyUpdate(e);});for(let event of['pointerup','pointercancel','lostpointercapture'])joy.addEventListener(event,()=>{touchMove.x=touchMove.y=0;$('joystick-knob').style.transform='';});
-$('enter-sound').onclick=()=>enter(true);$('enter-silent').onclick=()=>enter(false);$('services-btn').onclick=catalog;$('directory-btn').onclick=directory;$('rooms-bottom').onclick=directory;$('project-btn').onclick=()=>enquire();$('close-panel').onclick=()=>$('panel').close();$('panel').addEventListener('click',e=>{if(e.target===$('panel')){let r=$('panel').getBoundingClientRect();if(e.clientX<r.left)$('panel').close();}});$('reception-btn').onclick=()=>mode==='office'?walkToRoom(0,10,0):teleport(0,10,0);$('audio-btn').onclick=toggleSound;$('fullscreen-btn').onclick=()=>{let p=document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();p?.catch(()=>toast('Fullscreen is unavailable in this browser.'));};$('home').onclick=e=>{e.preventDefault();if(entered)teleport(2,31,0);};$('help-btn').onclick=help;$('room-details').onclick=()=>{if(current==='outside'||current==='reception')about();else if(current==='jewellery')toast('The restored Sivan Jewellery showroom · use Back to Metaverse to return.');else if(current==='corridor')directory();else showRoom(rooms.find(r=>r.id===current));};$('jewellery-back').onclick=()=>teleport(10,2,0);$('map-toggle').onclick=()=>{$('mini-map').classList.toggle('collapsed');$('map-toggle').textContent=$('mini-map').classList.contains('collapsed')?'+':'−';};document.querySelector('.skip').onclick=e=>{e.preventDefault();catalog();};
+$('enter-sound').onclick=()=>enter(true);$('enter-silent').onclick=()=>enter(false);$('services-btn').onclick=catalog;$('contact-btn').onclick=showContacts;$('directory-btn').onclick=directory;$('rooms-bottom').onclick=directory;$('project-btn').onclick=()=>enquire();$('close-panel').onclick=()=>$('panel').close();$('panel').addEventListener('click',e=>{if(e.target===$('panel')){let r=$('panel').getBoundingClientRect();if(e.clientX<r.left)$('panel').close();}});$('reception-btn').onclick=()=>mode==='office'?walkToRoom(0,10,0):teleport(0,10,0);$('audio-btn').onclick=toggleSound;$('fullscreen-btn').onclick=()=>{let p=document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();p?.catch(()=>toast('Fullscreen is unavailable in this browser.'));};$('home').onclick=e=>{e.preventDefault();if(entered)teleport(2,31,0);};$('help-btn').onclick=help;$('room-details').onclick=()=>{if(current==='outside'||current==='reception')about();else if(current==='jewellery')toast('The restored Sivan Jewellery showroom · use Back to Metaverse to return.');else if(current==='corridor')directory();else showRoom(rooms.find(r=>r.id===current));};$('jewellery-back').onclick=()=>teleport(10,2,0);$('map-toggle').onclick=()=>{$('mini-map').classList.toggle('collapsed');$('map-toggle').textContent=$('mini-map').classList.contains('collapsed')?'+':'−';};document.querySelector('.skip').onclick=e=>{e.preventDefault();catalog();};
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(!renderer.xr.isPresenting)renderer.setSize(innerWidth,innerHeight);});document.addEventListener('visibilitychange',()=>{keys.clear();touchMove.x=touchMove.y=0;clock.getDelta();});
 // Interior occupancy lighting fades independently of the outdoor daylight.
 const studioLights=[],studioSurfaces=[];
