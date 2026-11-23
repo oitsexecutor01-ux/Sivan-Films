@@ -49,3 +49,5 @@
 @media(max-width:650px){#reception-greeting{padding-right:52px}}
 
 .contact-lounge .contact-primary{background:#264b49;color:#fff;border-color:#264b49}.contact-lounge .field,.contact-lounge .field input,.contact-lounge .field select,.contact-lounge .field textarea,.contact-lounge .contact-grid a{font-size:16px}.contact-lounge .panel-action{background:#264b49;font-size:16px}.lounge-visit{border-top:1px solid #c8cdbf;margin-top:30px;padding-top:8px}.lounge-visit a{display:inline-block;padding:12px 0;font-size:16px}.contact-lounge .contact-grid a{overflow-wrap:anywhere}#service-content .contact-lounge .contact-note{font-size:14px}
+
+body.in-vr header,body.in-vr .location,body.in-vr .scene-top,body.in-vr .bottom-bar,body.in-vr #touch-controls,body.in-vr #mini-map,body.in-vr #move-hint,body.in-vr #subtitle,body.in-vr #reception-greeting{display:none!important}

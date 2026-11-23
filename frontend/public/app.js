@@ -5,6 +5,7 @@ import {RoomEnvironment} from './assets/RoomEnvironment.js';
 import {FontLoader} from './assets/FontLoader.js';
 import {TextGeometry} from './assets/TextGeometry.js';
 import {createCameraman} from './cameraman.js';
+import {createStudioVR} from './vr.js';
 import {rooms,additional,industries,brandStations,contact,mediaConfig,phoneDigits} from './content.js';
 
 function boot(){
@@ -1012,7 +1013,7 @@ let drag=null,dragDistance=0;renderer.domElement.addEventListener('pointerdown',
 let joy=$('joystick');function joyUpdate(e){let r=joy.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,len=Math.hypot(dx,dy),scale=Math.min(1,28/(len||1));dx*=scale;dy*=scale;touchMove.x=dx/28;touchMove.y=-dy/28;$('joystick-knob').style.transform=`translate(${dx}px,${dy}px)`;}
 joy.addEventListener('pointerdown',e=>{joy.setPointerCapture(e.pointerId);joyUpdate(e);});joy.addEventListener('pointermove',e=>{if(e.buttons)joyUpdate(e);});for(let event of['pointerup','pointercancel','lostpointercapture'])joy.addEventListener(event,()=>{touchMove.x=touchMove.y=0;$('joystick-knob').style.transform='';});
 $('enter-sound').onclick=()=>enter(true);$('enter-silent').onclick=()=>enter(false);$('services-btn').onclick=catalog;$('directory-btn').onclick=directory;$('rooms-bottom').onclick=directory;$('project-btn').onclick=()=>enquire();$('close-panel').onclick=()=>$('panel').close();$('panel').addEventListener('click',e=>{if(e.target===$('panel')){let r=$('panel').getBoundingClientRect();if(e.clientX<r.left)$('panel').close();}});$('reception-btn').onclick=()=>mode==='office'?walkToRoom(0,10,0):teleport(0,10,0);$('audio-btn').onclick=toggleSound;$('fullscreen-btn').onclick=()=>{let p=document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();p?.catch(()=>toast('Fullscreen is unavailable in this browser.'));};$('home').onclick=e=>{e.preventDefault();if(entered)teleport(2,31,0);};$('help-btn').onclick=help;$('room-details').onclick=()=>{if(current==='outside'||current==='reception')about();else if(current==='jewellery')toast('The restored Sivan Jewellery showroom · use Back to Metaverse to return.');else if(current==='corridor')directory();else showRoom(rooms.find(r=>r.id===current));};$('jewellery-back').onclick=()=>teleport(10,2,0);$('map-toggle').onclick=()=>{$('mini-map').classList.toggle('collapsed');$('map-toggle').textContent=$('mini-map').classList.contains('collapsed')?'+':'−';};document.querySelector('.skip').onclick=e=>{e.preventDefault();catalog();};
-window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});document.addEventListener('visibilitychange',()=>{keys.clear();touchMove.x=touchMove.y=0;clock.getDelta();});
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();if(!renderer.xr.isPresenting)renderer.setSize(innerWidth,innerHeight);});document.addEventListener('visibilitychange',()=>{keys.clear();touchMove.x=touchMove.y=0;clock.getDelta();});
 // Interior occupancy lighting fades independently of the outdoor daylight.
 const studioLights=[],studioSurfaces=[];
 const roomLighting=new Map(rooms.map(room=>[room.id,{room,level:0,occupied:false}]));
@@ -1067,10 +1068,10 @@ function updateStudioLighting(dt,initial=false){
   if(environment!==undefined)material.envMapIntensity=environment*(.35+.65*level);
  }
 }
-function render(){requestAnimationFrame(render);if(document.hidden)return;let rawDt=clock.getDelta(),dt=Math.min(rawDt,.045),t=clock.elapsedTime;frame++;smoothedFrameTime=smoothedFrameTime*.97+Math.min(rawDt,.2)*.03;if(frame%240===0&&qualityAuto&&smoothedFrameTime>.035&&renderer.getPixelRatio()>1){renderer.setPixelRatio(Math.max(1,renderer.getPixelRatio()-.2));renderer.setSize(innerWidth,innerHeight);}
- if(entered&&!$('panel').open&&!teleporting){let f=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0)+touchMove.y,s=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0)+touchMove.x;let len=Math.max(1,Math.hypot(f,s)),v=(keys.has('ShiftLeft')||keys.has('ShiftRight')?4.2:2.5)*dt/len;move((-Math.sin(yaw)*f+Math.cos(yaw)*s)*v,(-Math.cos(yaw)*f-Math.sin(yaw)*s)*v);}
+function render(){if(document.hidden&&!renderer.xr.isPresenting)return;let rawDt=clock.getDelta(),dt=Math.min(rawDt,.045),t=clock.elapsedTime;frame++;smoothedFrameTime=smoothedFrameTime*.97+Math.min(rawDt,.2)*.03;if(!renderer.xr.isPresenting&&frame%240===0&&qualityAuto&&smoothedFrameTime>.035&&renderer.getPixelRatio()>1){renderer.setPixelRatio(Math.max(1,renderer.getPixelRatio()-.2));renderer.setSize(innerWidth,innerHeight);}
+ if(!renderer.xr.isPresenting&&entered&&!$('panel').open&&!teleporting){let f=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0)+touchMove.y,s=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0)+touchMove.x;let len=Math.max(1,Math.hypot(f,s)),v=(keys.has('ShiftLeft')||keys.has('ShiftRight')?4.2:2.5)*dt/len;move((-Math.sin(yaw)*f+Math.cos(yaw)*s)*v,(-Math.cos(yaw)*f-Math.sin(yaw)*s)*v);}
  updateRoomWalk(dt);updateStudioLighting(dt);
- camera.position.copy(position);camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);animateActors(t,dt);updateReceptionGreeting();
+ if(vr.active())vr.update(dt);else{camera.position.copy(position);camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);}animateActors(t,dt);if(!vr.active())updateReceptionGreeting();
  guideOpenAmount=reduced?(guideOpening?1:0):THREE.MathUtils.damp(guideOpenAmount,guideOpening?1:0,8,dt);
  if(guideCover)guideCover.rotation.y=-guideOpenAmount*Math.PI*.85;
  if(guideLeaf)guideLeaf.rotation.y=-guideOpenAmount*Math.PI*.55;
@@ -1081,11 +1082,20 @@ function render(){requestAnimationFrame(render);if(document.hidden)return;let ra
  if(sculptLetters.length)sculptLetters.forEach(m=>m.scale.set(1,1,1));
  if(entered&&frame%6===0)updateGuideLocation();
  if(entered&&frame%12===0){updateLocation();const mp=$('map-player');if(mp){mp.setAttribute('cx',String(80+position.x*3.5));mp.setAttribute('cy',String(Math.max(6,Math.min(204,15+(position.z+36)*3.1))));}
- if(!drag&&mode==='office'&&!$('panel').open){ray.setFromCamera(pointer,camera);let hit=ray.intersectObjects(interactive,false).find(h=>h.distance<18);$('interaction-hint').hidden=!hit;if(hit)$('interaction-hint').textContent=hit.object.userData.label+' ↗';renderer.domElement.style.cursor=hit?'pointer':'grab';}else $('interaction-hint').hidden=true;}
+ if(!vr.active()&&!drag&&mode==='office'&&!$('panel').open){ray.setFromCamera(pointer,camera);let hit=ray.intersectObjects(interactive,false).find(h=>h.distance<18);$('interaction-hint').hidden=!hit;if(hit)$('interaction-hint').textContent=hit.object.userData.label+' ↗';renderer.domElement.style.cursor=hit?'pointer':'grab';}else $('interaction-hint').hidden=true;}
  renderer.render(scene,camera);
 }
+const vr=createStudioVR({renderer,scene,camera,rooms,button:$('vr-enter'),
+ getPose:()=>({x:position.x,z:position.z,yaw}),
+ setPose:(x,z,angle)=>{roomWalk=null;position.x=x;position.z=z;yaw=angle;},
+ move,canWalk:clearWalkSegment,blocked:collision,
+ prepare:()=>{if(!entered)enter(false);keys.clear();touchMove.x=touchMove.y=0;roomWalk=null;closeStudioGuide();if($('panel').open)$('panel').close();},
+ visit:async id=>{const r=rooms.find(r=>r.id===id);await teleport(r?(r.spawnX??r.x):0,r?r.z+3:id==='outside'?26:10,r?.yaw||0);},
+ interactive:()=>interactive,
+ interact:async object=>{await renderer.xr.getSession().end();object.userData.action?.();},notify:toast
+});
 async function init(){try{buildOffice();initMap();progress(58,'Preparing the skeletal character rigs…');try{const logo=await new THREE.TextureLoader().loadAsync(contact.logo);logo.colorSpace=THREE.SRGBColorSpace;for(const p of [[8.05,2.3,28.18,2.4,1.3],[-7,2.65,6.18,3.7,2]]){const m=mesh(new THREE.PlaneGeometry(p[3],p[4]),companyLogoMaterial(logo),p[0],p[1],p[2]);const ar=logo.image.width/logo.image.height;const fw=Math.min(p[3],p[4]*ar),fh=fw/ar;m.geometry.dispose();m.geometry=new THREE.PlaneGeometry(fw,fh);m.userData={label:'About Sivan Films',action:about};interactive.push(m);}}catch(e){issues.push('Company logo texture failed to load');}try{actorTemplate=await new GLTFLoader().loadAsync('./assets/Michelle.glb');crewTemplate=await new GLTFLoader().loadAsync('./assets/crew-human.glb');createActor(-13,24,'director',Math.atan2(3.3,-2.2));createActor(-10.8,26.05,'camera',Math.PI);createActor(-9.7,21.8,'performer',.3);createActor(-14.3,23.7,'light',Math.PI);receptionist=createActor(-7,8.0,'reception',0);createActor(-14,2,'director',Math.atan2(4,-5.5));createActor(-12,1.55,'camera',Math.PI);createActor(-10,-3.5,'performer',.2);}catch(e){issues.push('Character model failed to load: '+e.message);}
- prepareStudioLighting();progress(92,'Opening the studio…');render();await new Promise(r=>requestAnimationFrame(r));progress(100,'Your studio is ready.');$('welcome').hidden=false;
+ prepareStudioLighting();progress(92,'Opening the studio…');renderer.setAnimationLoop(render);await new Promise(r=>requestAnimationFrame(r));progress(100,'Your studio is ready.');$('welcome').hidden=false;
  const requested=new URLSearchParams(location.search).get('room'),id=roomAliases[requested]||requested;
  const saved=history.state?.studioView;
  if(saved&&[saved.x,saved.z,saved.yaw,saved.pitch].every(Number.isFinite)){
@@ -1094,7 +1104,7 @@ async function init(){try{buildOffice();initMap();progress(58,'Preparing the ske
    // Position the camera before revealing the first frame of a shared room.
    if(id==='jewellery'){enter(false);await loadJewellery();}else{const r=rooms.find(r=>r.id===id);position.set(r?(r.spawnX??r.x):0,1.67,r?r.z+3:10);yaw=r?.yaw||0;pitch=0;enter(false);rememberView();}
  }
- $('loader').hidden=true;
+ $('loader').hidden=true;vr.enable();
 
  }catch(e){console.error(e);$('loading-label').textContent='The 3D view could not start. You can still explore our services.';let b=document.createElement('button');b.className='primary';b.textContent='Read our services';b.onclick=catalog;$('loader').appendChild(b);}}
 init();

@@ -32,3 +32,15 @@ Video source URLs configured in the content may reference external hosts. Intern
 Build the frontend, run the backend behind an HTTPS reverse proxy, set NODE_ENV=production, persist backend/data and back it up. Set correct origin and Host forwarding on your proxy. Admin credentials belong in environment configuration and must not be committed. Keep only required ports accessible.
 
 Original source snapshot is included under original-source for reference. It excludes Git history, environment secrets and dependencies. The live website has not been changed by this export.
+
+## Meta Quest VR
+
+Open the HTTPS website in Meta Quest Browser, enter the studio, then select **Enter VR** and allow immersive VR. The button is shown only when the browser reports immersive VR support. Use Quest Touch controllers:
+
+- Left thumbstick: walk; right thumbstick: 30-degree snap turn.
+- Trigger: select a room/menu button or point down at a clear floor area to teleport (green ring). Teleport paths respect the studio collision map.
+- Grip: open/close the floating room directory. It opens automatically on entry.
+- Room directory: jump to a room, reception, or garden; choose Exit VR to return to the browser.
+- Selecting existing scene displays exits VR before opening their browser-based details.
+
+VR uses floor-relative head tracking and reduced rendering cost (no realtime shadows). Hand tracking is not implemented. Real Quest 3 visual quality, controller mapping, frame rate, and comfort still require testing on the headset. Physical movement follows headset tracking; use your Quest boundary to stay within your real play area.
