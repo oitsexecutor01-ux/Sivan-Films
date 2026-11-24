@@ -74,3 +74,9 @@ body.in-vr header,body.in-vr .location,body.in-vr .scene-top,body.in-vr .bottom-
 .office-location a:hover{text-decoration:underline}
 @media(max-width:650px){header{padding-inline:12px;gap:10px}nav{gap:10px}nav button{white-space:nowrap}.project span{display:none}}
 @media(max-width:380px){nav{gap:8px}.project{padding:10px 8px!important}header{padding-inline:8px;gap:6px}.wordmark,.wordmark img{min-width:70px;width:70px}}
+
+/* Bottom policy links are available on desktop and tablet only. */
+.studio-policy-links{position:fixed;left:50%;bottom:3px;transform:translateX(-50%);z-index:7;margin:0;display:flex;align-items:center;gap:12px;white-space:nowrap;font-size:14px;line-height:24px;color:#fff;text-shadow:0 1px 5px #000,0 1px 12px #000}
+.studio-policy-links a{text-decoration:none}.studio-policy-links a:hover{text-decoration:underline}
+@media(max-width:767px){.studio-policy-links{display:none}}
+body.in-vr .studio-policy-links{display:none}
