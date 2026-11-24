@@ -182,12 +182,12 @@
     "logo": "./assets/sivan-films-logo.jpg"
   },
   "gardenVideos": [
-    "./assets/garden-showreel/video-2.mp4",
-    "./assets/garden-showreel/video-3.mp4"
+    "https://res.cloudinary.com/xn6xqtlk/video/upload/v1795520207/video-2_1.mp4",
+    "https://res.cloudinary.com/xn6xqtlk/video/upload/v1795520322/video-3_1.mp4"
   ],
   "metaverseVideos": [
     "https://res.cloudinary.com/xn6xqtlk/video/upload/v1795519035/video-1.mp4",
-    "./assets/billboard/video-2.mp4",
+    "https://res.cloudinary.com/xn6xqtlk/video/upload/v1795519599/video-2.mp4",
     "./assets/billboard/video-3.mp4"
   ],
   "gallery": [

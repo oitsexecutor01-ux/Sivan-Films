@@ -5,13 +5,24 @@ export const additional=saved.additional||base.additional,industries=saved.indus
 export const contact=saved.contact||{phone:'+919884004788',email:'info@sivanfilms.com',locations:'Chennai | Salem | Bengaluru',director:'Ramesh',logo:'./assets/sivan-films-logo.jpg'};
 export const billboardVideos=[
   'https://res.cloudinary.com/xn6xqtlk/video/upload/v1795519035/video-1.mp4',
-  './assets/billboard/video-2.mp4',
+  'https://res.cloudinary.com/xn6xqtlk/video/upload/v1795519599/video-2.mp4',
   './assets/billboard/video-3.mp4',
 ];
-const replaceBillboardVideo=src=>/^\.?\/assets\/billboard\/video-1\.mp4$/.test(src)?billboardVideos[0]:src;
+export const gardenShowreelVideos=[
+  './assets/garden-showreel/video-1.mp4',
+  'https://res.cloudinary.com/xn6xqtlk/video/upload/v1795520207/video-2_1.mp4',
+  'https://res.cloudinary.com/xn6xqtlk/video/upload/v1795520322/video-3_1.mp4',
+];
+const videoReplacements=new Map([
+  ['/assets/billboard/video-1.mp4',billboardVideos[0]],
+  ['/assets/billboard/video-2.mp4',billboardVideos[1]],
+  ['/assets/garden-showreel/video-2.mp4',gardenShowreelVideos[1]],
+  ['/assets/garden-showreel/video-3.mp4',gardenShowreelVideos[2]],
+]);
+const replaceLocalVideo=src=>videoReplacements.get(src.replace(/^\.\//,'/'))??src;
 export const mediaConfig={
-  gardenVideos:(saved.gardenVideos||['./assets/garden-showreel/video-2.mp4','./assets/garden-showreel/video-3.mp4']).map(replaceBillboardVideo),
-  metaverseVideos:(saved.metaverseVideos||billboardVideos).map(replaceBillboardVideo),
+  gardenVideos:(saved.gardenVideos||gardenShowreelVideos.slice(1)).map(replaceLocalVideo),
+  metaverseVideos:(saved.metaverseVideos||billboardVideos).map(replaceLocalVideo),
   gallery:saved.gallery||Array.from({length:7},(_,i)=>'./assets/about-gallery/photo-'+(i+1)+'.jpg'),
 };
 export const phoneDigits=contact.phone.replace(/\D/g,'');
