@@ -7,7 +7,7 @@ import {TextGeometry} from './assets/TextGeometry.js';
 import {createCameraman} from './cameraman.js';
 import {createStudioHuman,humanBone,seatStudioHuman,createHumanMotion,updateHumanMotion} from './studio-human.js';
 import {createStudioVR} from './vr.js';
-import {rooms,additional,industries,brandStations,contact,mediaConfig,phoneDigits} from './content.js';
+import {rooms,additional,industries,brandStations,contact,mediaConfig,phoneDigits,billboardVideos} from './content.js';
 
 const officeLocations=[
  {city:'Chennai',area:'KK Nagar',phone:'+91 9884004788',tel:'+919884004788'},
@@ -415,7 +415,7 @@ function filmShowreel(x,label,startIndex){
  box(w+.14,h+.14,.08,M.charcoal,x,y,z-.06,office,true);
  const playlist=[...new Set([...mediaConfig.gardenVideos,...mediaConfig.metaverseVideos,
   ...[1,2,3].map(i=>`./assets/garden-showreel/video-${i}.mp4`),
-  ...[1,2,3].map(i=>`./assets/billboard/video-${i}.mp4`)])];
+  ...billboardVideos])];
  const video=document.createElement('video');
  video.muted=true;video.defaultMuted=true;video.playsInline=true;video.preload='auto';
  video.setAttribute('playsinline','');video.crossOrigin='anonymous';video.hidden=true;
