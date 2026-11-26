@@ -2,6 +2,7 @@ import * as base from './content-base.js';
 let saved={};try{const r=await fetch('/api/studio-content'+(new URLSearchParams(location.search).get('preview')==='1'?'?preview=1':''),{cache:'no-store'});if(r.ok)saved=await r.json();}catch{}
 export const rooms=base.rooms.map(r=>({...r,...(saved.rooms||[]).find(s=>s.id===r.id)}));
 export const additional=saved.additional||base.additional,industries=saved.industries||base.industries,brandStations=saved.brands||base.brandStations,welcomeLine=base.welcomeLine;
+export const serviceCategories=saved.serviceCategories??base.serviceCategories;
 export const contact=saved.contact||{phone:'+919884004788',email:'info@sivanfilms.com',locations:'Chennai | Salem | Bengaluru',director:'Ramesh',logo:'./assets/sivan-films-logo.jpg'};
 export const billboardVideos=[
   'https://res.cloudinary.com/xn6xqtlk/video/upload/v1795519035/video-1.mp4',

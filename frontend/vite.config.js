@@ -1,12 +1,15 @@
 import {defineConfig} from 'vite';
-export default defineConfig({server:{proxy:{'/api':{
- target:'http://localhost:4000',
- changeOrigin:true,
- configure(proxy){
-  proxy.on('proxyReq',(proxyReq,req)=>{
-   // Translate only same-origin frontend requests to the backend origin.
-   // Requests from other sites retain their origin and fail the backend check.
-   try{if(new URL(req.headers.origin).host===req.headers.host)proxyReq.setHeader('Origin','http://localhost:4000');}catch{}
-  });
- }
-}}}});
+
+// Use the backend's IPv6 listener directly so localhost cannot resolve to a
+// different service bound to the same port on IPv4.
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: { protocol: 'http:', host: '[::1]:4000', hostname: '::1', port: 4000 },
+        // The backend checks Origin against the browser-facing Host.
+        changeOrigin: false,
+      },
+    },
+  },
+});

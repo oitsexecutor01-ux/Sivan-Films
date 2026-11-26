@@ -1,3 +1,4 @@
+import {mountServiceCatalog} from './service-catalog.js';
 import * as THREE from 'three';
 import {GLTFLoader} from './assets/GLTFLoader.js';
 import {clone as cloneRig} from './assets/SkeletonUtils.js';
@@ -7,7 +8,7 @@ import {TextGeometry} from './assets/TextGeometry.js';
 import {createCameraman} from './cameraman.js';
 import {createStudioHuman,humanBone,seatStudioHuman,createHumanMotion,updateHumanMotion} from './studio-human.js';
 import {createStudioVR} from './vr.js';
-import {rooms,additional,industries,brandStations,contact,mediaConfig,phoneDigits,billboardVideos,gardenShowreelVideos} from './content.js';
+import {rooms,additional,industries,brandStations,contact,mediaConfig,phoneDigits,billboardVideos,gardenShowreelVideos,serviceCategories} from './content.js';
 
 const officeLocations=[
  {city:'Chennai',area:'KK Nagar',phone:'+91 9884004788',tel:'+919884004788'},
@@ -1155,7 +1156,11 @@ function enquire(service='General enquiry'){panel('LET’S CREATE SOMETHING',`<p
 function showRoom(r){if(r.id==='contact'){contactLounge();return;}panel('EXPLORE / '+r.n,`<p class="intro-line">${esc(r.kicker)}</p><h2>${esc(r.name)}</h2><p>${esc(r.intro)}</p>${r.reserved?'<p class="notice">Reserved room · theme and content pending confirmation.</p>':list(r.services)}${r.id==='media'?channelGallery():''}${r.id==='meta'?'<button class="panel-action" id="open-jewel-panel">Explore virtual Sivan Jewellery <span>↗</span></button>':''}<button class="panel-action" id="share-room">Copy direct room link <span>↗</span></button><button class="panel-action" id="walk-room">Walk into this room <span>↗</span></button>${r.id==='about'?'<button class="panel-action" id="read-about">Read about Sivan Films <span>↗</span></button>':''}${!r.reserved?'<button class="panel-action" id="enquire-room">Discuss a project <span>↗</span></button>':''}`);$('share-room').onclick=()=>copyRoomLink(r.id);$('walk-room').onclick=()=>goRoom(r.id);if($('read-about'))$('read-about').onclick=about;if($('enquire-room'))$('enquire-room').onclick=()=>enquire(r.name);if($('open-jewel-panel'))$('open-jewel-panel').onclick=loadJewellery;}
 function directory(){panel('THE STUDIO / ROOM DIRECTORY',`<p class="intro-line">SIX ROOMS. A WORLD OF POSSIBILITIES.</p><h2>Choose your<br>next perspective.</h2><p>Walk through the studio, or go directly to a room.</p><div class="room-grid">${rooms.map(r=>`<button class="room-tile ${r.reserved?'reserved':''}" data-room="${r.id}"><small>${r.n} / ${r.reserved?'RESERVED':'EXPLORE'}</small><i>↗</i><strong>${esc(r.name)}</strong><span>${esc(r.short)}</span></button>`).join('')}</div><button class="panel-action" id="dir-reception">Return to reception <span>↗</span></button>`);document.querySelectorAll('.room-tile').forEach(b=>b.onclick=()=>goRoom(b.dataset.room));$('dir-reception').onclick=()=>{$('panel').close();if(!entered)enter(false);teleport(0,10,0);};}
 function channelGallery(){return '<div class="channel-grid">'+brandStations.map(b=>`<article><img src="${esc(b.logo)}" alt="${esc(b.name)} logo"><h3>${esc(b.name)}</h3><a href="./contact.html?channel=${encodeURIComponent(b.name)}">Need to advertise here? ↗</a></article>`).join('')+'</div>';}
-function catalog(){panel('SERVICES / SIVAN FILMS',`<p class="intro-line">ADVERTISING COMES FIRST.</p><h2>Creative thinking.<br>Complete experiences.</h2><p>From an advertising concept to an immersive brand experience, explore the capabilities of Sivan Films.</p><div class="room-grid">${rooms.filter(r=>!r.reserved&&r.id!=='about'&&r.id!=='contact').map(r=>`<button class="room-tile" data-detail="${r.id}"><small>${r.n} / SERVICES</small><i>↗</i><strong>${esc(r.name)}</strong><span>${esc(r.short)}</span></button>`).join('')}</div><h3>Television advertising</h3>${channelGallery()}${additional.map((s,i)=>`<h3>${esc(s.title)}</h3><p>${esc(s.text)}</p>${list(s.items)}`).join('')}<h3>Industries we serve</h3>${list(industries)}<button id="catalog-enquire" class="panel-action">Discuss your requirement <span>↗</span></button>`);document.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>showRoom(rooms.find(r=>r.id===b.dataset.detail)));$('catalog-enquire').onclick=()=>enquire();}
+function catalog(){
+ panel('SERVICES / SIVAN FILMS','<div id="service-catalog"></div>');
+ mountServiceCatalog($('service-catalog'),serviceCategories);
+}
+
 function about(){const r=rooms.find(r=>r.id==='about');panel('ABOUT / SIVAN FILMS',`<p class="intro-line">ESTABLISHED 2003 · DIRECTOR ${esc(contact.director)}</p><h2>${esc(r.name)}</h2><p>${esc(r.intro)}</p><h3>${esc(contact.locations)}</h3>${list(r.services)}<button class="panel-action" id="about-contact">Start a conversation <span>↗</span></button><button class="panel-action" id="about-directory">Explore the studio <span>↗</span></button>`);$('about-contact').onclick=()=>enquire();$('about-directory').onclick=directory;}
 
 function extraPanel(s){panel('MORE / SIVAN FILMS',`<h2>${esc(s.title)}</h2><p>${esc(s.text)}</p>${list(s.items)}<button class="panel-action" id="extra-enquire">Discuss this service <span>↗</span></button>`);$('extra-enquire').onclick=()=>enquire(s.title);}
